@@ -74,7 +74,7 @@ def busca_avancada(genero, ano_min, nota_min):
         df = df.drop_duplicates(subset="titulo_id")
         
         # Adicionando a URL dos pôsteres
-        base_url_posters = "https://raw.githubusercontent.com/Ozen-ok/imdb/main/posters/"
+        base_url_posters = "https://raw.githubusercontent.com/Ozen-ok/imdb/main/data/imagens/posters/"
         df["poster_url"] = df["titulo_id"].apply(lambda tid: base_url_posters + f"{tid}.jpg")
         
         # Caso a estrutura do dataframe não tenha alguns dados, trate isso

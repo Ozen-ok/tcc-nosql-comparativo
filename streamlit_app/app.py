@@ -1,24 +1,24 @@
 import streamlit as st
 
-
 st.logo(
-    "https://github.com/Ozen-ok/imdb/blob/main/streamlit_app/assets/Logo_UEMA.png?raw=true", 
-    size="medium", 
+    "https://raw.githubusercontent.com/Ozen-ok/imdb/refs/heads/main/streamlit_app/assets/Logo_UEMA.png", 
+    size="large", 
     link="https://www.uema.br/", 
-    icon_image="https://github.com/Ozen-ok/imdb/blob/main/streamlit_app/assets/Logo_UEMA.png?raw=true"
+    icon_image="https://raw.githubusercontent.com/Ozen-ok/imdb/refs/heads/main/streamlit_app/assets/Logo_UEMA.png"
 )
 
-# Definindo as páginas (arquivos Python para cada banco de dados)
-mongodb_page = st.Page("pages/1_MongoDB.py", title="MongoDB Operations", icon=":material/add_circle:")
-cassandra_page = st.Page("pages/2_Cassandra.py", title="Cassandra Operations", icon=":material/storage:")
-neo4j_page = st.Page("pages/3_Neo4j.py", title="Neo4j Operations", icon=":material/layers:")
-redis_page = st.Page("pages/4_Redis.py", title="Redis Operations", icon=":material/cloud:")
+pages = {
+    "Inicio": [
+        st.Page("pages/Home.py", title="Home", icon=":material/house:"),
+    ],
 
-# Definindo a navegação com as páginas
-pg = st.navigation([mongodb_page, cassandra_page, neo4j_page, redis_page])
+    "Bancos": [
+        st.Page("pages/mongodb_page.py", title="MongoDB Operations", icon=":material/add_circle:"),
+        st.Page("pages/cassandra_page.py", title="Cassandra Operations", icon=":material/storage:"),
+        st.Page("pages/neo4j_page.py", title="Neo4j Operations", icon=":material/layers:"),
+        st.Page("pages/redis_page.py", title="Redis Operations", icon=":material/cloud:")
+    ],
+}
 
-# Configurações da página
-st.set_page_config(page_title="Comparador de Bancos NoSQL", page_icon=":material/edit:")
-
-# Iniciando a navegação
+pg = st.navigation(pages)
 pg.run()

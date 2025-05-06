@@ -77,7 +77,6 @@ def busca_avancada(
     return filmes
 
 
-
 @router.get("/ping")
 def ping_mongo():
     db = get_mongo_db()
