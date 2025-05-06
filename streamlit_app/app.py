@@ -2,10 +2,10 @@ import streamlit as st
 
 
 st.logo(
-    "streamlit_app\assets\Logo_UEMA.png", 
+    "https://github.com/Ozen-ok/imdb/blob/main/streamlit_app/assets/Logo_UEMA.png?raw=true", 
     size="medium", 
     link="https://www.uema.br/", 
-    icon_image="streamlit_app\assets\Logo_UEMA.png"
+    icon_image="https://github.com/Ozen-ok/imdb/blob/main/streamlit_app/assets/Logo_UEMA.png?raw=true"
 )
 
 # Definindo as páginas (arquivos Python para cada banco de dados)
