@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import ast
-from adaptadores.mongo_api import (
+from adaptadores.mongo_api_client import (
     inserir_filme,
     buscar_filmes_por_genero,
     atualizar_nota,
@@ -10,9 +9,10 @@ from adaptadores.mongo_api import (
     media_por_genero,
     busca_avancada
 )
-import components.repetidor as botoes
+from components.repetidor import criar_botao_home, preparar_dados_filmes, exibir_cartao_filme
+import plotly.express as px
 
-botoes.criar_botao_home()
+criar_botao_home()
 
 st.title("🟢 MongoDB - Operações")
 
@@ -26,28 +26,40 @@ if operacao == "Inserção":
     with st.form("inserir_form"):
         titulo_id = st.text_input("ID do Título", "tt0000001")
         titulo = st.text_input("Título", "Exemplo")
-        ano_lancamento = st.number_input("Ano de Lançamento", 1900, 2100, 2020)
+        tipo = st.selectbox("Escolha um tipo", ["Filme", "Série de TV", "Filme para TV", "Vídeo", "Jogo", "Minissérie", "Curta"])
+        ano_lancamento = st.number_input("Ano de Lançamento", 1900, 2025, 2020)
         generos = st.text_input("Gêneros (separados por vírgula)", "Drama,Comédia")
         nota = st.number_input("Nota", 0.0, 10.0, 7.5)
+        numero_votos = st.number_input("Número de Votos", min_value=0, step=1, value=1000)
+        duracao = st.number_input("Duração (em minutos)", min_value=0, step=1, value=120)
+        sinopse = st.text_area("Sinopse", "Descrição do filme...")
+
         submitted = st.form_submit_button("Inserir")
 
     if submitted:
-        resposta = inserir_filme(titulo_id, titulo, ano_lancamento, generos, nota)
+        resposta = inserir_filme(
+            titulo_id, titulo, tipo, ano_lancamento, generos, nota,
+            numero_votos, duracao, sinopse
+        )
         if "error" in resposta:
-            st.error(f"Erro: {resposta['error']}")
+            st.error(f"{resposta['error']}")
         else:
             st.success("Filme inserido com sucesso.")
-            st.json(resposta)
 
 elif operacao == "Consulta":
     st.subheader("🔍 Buscar Filmes por Gênero")
     genero = st.text_input("Gêneros (separados por vírgula)", "Drama,Comédia")
     if st.button("Buscar"):
-        filmes = buscar_filmes_por_genero(genero)
-        if "error" in filmes:
-            st.error(f"Erro: {filmes['error']}")
+        filmes_raw = buscar_filmes_por_genero(genero)
+        if "error" in filmes_raw:
+            st.error(f"{filmes_raw['error']}")
+        elif not filmes_raw:
+            st.warning("Nenhum resultado encontrado.")
         else:
-            st.json(filmes)
+            filmes = preparar_dados_filmes(filmes_raw)
+            for row in filmes:
+                exibir_cartao_filme(row)
+
 
 elif operacao == "Atualização":
     st.subheader("✏️ Atualizar Nota de um Filme")
@@ -56,10 +68,9 @@ elif operacao == "Atualização":
     if st.button("Atualizar Nota"):
         resposta = atualizar_nota(titulo_id_update, nova_nota)
         if "error" in resposta:
-            st.error(f"Erro: {resposta['error']}")
+            st.error(f"{resposta['error']}")
         else:
             st.success("Nota atualizada com sucesso.")
-            st.json(resposta)
 
 elif operacao == "Remoção":
     st.subheader("🗑️ Deletar Filme")
@@ -67,28 +78,48 @@ elif operacao == "Remoção":
     if st.button("Deletar"):
         resposta = deletar_filme(titulo_id_delete)
         if "error" in resposta:
-            st.error(f"Erro: {resposta['error']}")
+            st.error(f"{resposta['error']}")
         else:
             st.success("Filme deletado.")
-            st.json(resposta)
 
 elif operacao == "Agregação: Média por Gênero":
     st.subheader("📊 Média de Notas por Gênero")
     if st.button("Calcular Média"):
-        resposta = media_por_genero()
+        resposta = media_por_genero()  # Função que retorna a lista de médias
         if "error" in resposta:
-            st.error(f"Erro: {resposta['error']}")
+            st.error(f"{resposta['error']}")
         else:
-            st.json(resposta)
+            # Converte a resposta para um DataFrame
+            df = pd.DataFrame(resposta)
+
+            # Cria um gráfico de barras com Plotly
+            fig = px.bar(df, x='genero', y='media_nota',
+                         title="Média de Notas por Gênero",
+                         labels={"genero": "Gênero", "media_nota": "Média de Nota"},
+                         color='genero')
+
+            # Exibe o gráfico no Streamlit
+            st.plotly_chart(fig)
 
 elif operacao == "Agregação: Contagem por Ano":
     st.subheader("📈 Contar Filmes por Ano")
     if st.button("Contar"):
-        resposta = contar_filmes_por_ano()
+        resposta = contar_filmes_por_ano()  # Função que retorna a contagem de filmes por ano
         if "error" in resposta:
-            st.error(f"Erro: {resposta['error']}")
+            st.error(f"{resposta['error']}")
         else:
-            st.json(resposta)
+            # Converte a resposta para um DataFrame
+            df = pd.DataFrame(resposta)
+
+            # Cria um gráfico de barras com Plotly
+            fig = px.bar(df, x='_id', y='quantidade',
+                         title="Contagem de Filmes por Ano",
+                         labels={"_id": "Ano", "quantidade": "Quantidade de Filmes"},
+                         color='_id')
+
+            # Exibe o gráfico no Streamlit
+            st.plotly_chart(fig)
+
 
 elif operacao == "Índices (Busca Avançada)":
     st.subheader("🔎 Busca Avançada por Filtros")
@@ -97,43 +128,13 @@ elif operacao == "Índices (Busca Avançada)":
     nota_min = st.number_input("Nota Mínima", 0.0, 10.0, 7.0)
 
     if st.button("Buscar Avançado"):
-        filmes = busca_avancada(genero_b, ano_min, nota_min)
-        if "error" in filmes:
-            st.error(f"Erro: {filmes['error']}")
-        elif "warning" in filmes:
-            st.warning(filmes["warning"])
+        filmes_raw = busca_avancada(genero_b, ano_min, nota_min)
+        if "error" in filmes_raw:
+            st.error(f"{filmes_raw['error']}")
+        elif "warning" in filmes_raw:
+            st.warning(filmes_raw["warning"])
         else:
-            df = pd.DataFrame(filmes)
-            for _, row in df.iterrows():
-                col1, col2 = st.columns([1, 4])
-                with col1:
-                    st.image(row.get("poster_url", ""), width=120)
-                with col2:
-                    st.subheader(f"{row['titulo']} ({int(row['ano_lancamento'])})")
+            filmes = preparar_dados_filmes(filmes_raw)
+            for row in filmes:
+                exibir_cartao_filme(row)
 
-                    if row.get("nota", 0) == 0:
-                        st.markdown("⭐ Ainda não lançado | 🗳️ Votos indisponíveis")
-                    else:
-                        st.markdown(f"⭐ {row['nota']} | 🗳️ {row['numero_votos']} votos")
-
-                    generos = row.get("generos", "")
-                    try:
-                        generos = ', '.join(ast.literal_eval(generos)) if isinstance(generos, str) else generos
-                    except:
-                        pass
-
-                    st.markdown(f"🎞️ {generos}")
-                    duracao = row.get("duracao", "N/A")
-                    try:
-                        duracao = f"{int(duracao)} minutos"
-                    except:
-                        duracao = "N/A"
-                    st.markdown(f"⏱️ {duracao}")
-
-                    sinopse = row.get("sinopse", "")
-                    if isinstance(sinopse, str) and len(sinopse) > 200:
-                        sinopse_curta = sinopse[:200].rsplit(' ', 1)[0] + "..."
-                    else:
-                        sinopse_curta = sinopse if isinstance(sinopse, str) else "Sinopse indisponível."
-
-                    st.markdown(f"🧾 {sinopse_curta}")

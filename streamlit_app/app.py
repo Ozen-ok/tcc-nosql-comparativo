@@ -1,10 +1,10 @@
 import streamlit as st
 
 st.logo(
-    "https://raw.githubusercontent.com/Ozen-ok/imdb/refs/heads/main/streamlit_app/assets/Logo_UEMA.png", 
+    "assets/Logo_UEMA.png", 
     size="large", 
     link="https://www.uema.br/", 
-    icon_image="https://raw.githubusercontent.com/Ozen-ok/imdb/refs/heads/main/streamlit_app/assets/Logo_UEMA.png"
+    icon_image="assets/Logo_UEMA.png"
 )
 
 pages = {

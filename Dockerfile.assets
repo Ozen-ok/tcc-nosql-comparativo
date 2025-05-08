@@ -1,0 +1,12 @@
+# Dockerfile.assets
+FROM alpine:latest
+
+# Copiar os novos arquivos TSV da pasta 'data' para dentro do contêiner
+COPY ./data/elenco.tsv /shared/elenco.tsv
+COPY ./data/filmes.tsv /shared/filmes.tsv
+COPY ./data/atores.tsv /shared/atores.tsv
+
+# Copiar a pasta 'assets' para dentro do contêiner, se necessário
+COPY ./assets /shared/assets
+
+CMD ["sleep", "infinity"]

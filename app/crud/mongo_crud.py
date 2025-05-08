@@ -1,84 +1,107 @@
-import ast
-from config.db_config import MONGO_HOST, MONGO_PASSWORD, MONGO_USER, MONGO_PORT
-from pymongo import MongoClient
-from bson import ObjectId
-from typing import List
-
-def convert_to_list(value):
-    # Verifica se o valor não é uma lista, então tenta converter
-    if isinstance(value, str):
-        try:
-            value = ast.literal_eval(value)  # Converte a string para lista
-            if not isinstance(value, list):  # Verifica se a conversão foi bem-sucedida
-                raise ValueError
-        except (ValueError, SyntaxError):
-            value = []  # Caso a conversão falhe, retorna uma lista vazia
-    return value
-
-def get_mongo_client():
-    uri = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/admin"
-    client = MongoClient(uri)
-    return client
-
-def insert_movie(movie):
-    client = get_mongo_client()  # Conectar ao MongoDB
-    try:
-        db = client['imdb_db']  # Nome do banco de dados
-        movie_collection = db['movies']  # Nome da coleção
-        movie_collection.insert_one(movie.dict())  # Inserir o filme
-    except Exception as e:
-        print(f"Erro ao inserir o filme: {e}")
-
-def insert_actor(actor):
-    client = get_mongo_client()  # Conectar ao MongoDB
-    try:
-        db = client['imdb_db']  # Nome do banco de dados
-        actor_collection = db['actors']  # Nome da coleção
-        actor_collection.insert_one(actor.dict())  # Inserir o ator
-    except Exception as e:
-        print(f"Erro ao inserir o ator: {e}")
-
 from pymongo.collection import Collection
 
-def inserir_filme(db: Collection, filme: dict):
-    return db.insert_one(filme)
+# INSERÇÕES -----------------------------------------------
 
-from bson import ObjectId
+def inserir_filme(collection: Collection, filme: dict):
+    return collection.insert_one(filme)
+
+def inserir_ator(collection: Collection, ator: dict):
+    return collection.insert_one(ator)
+
+def inserir_elenco(collection: Collection, relacao: dict):
+    return collection.insert_one(relacao)
+
+# CONSULTAS -----------------------------------------------
 
 def buscar_filmes_por_genero(collection: Collection, generos: list):
     """
-    Busca filmes que tenham pelo menos um dos gêneros informados.
+    Busca filmes que tenham pelo menos todos os gêneros informados.
     """
-    query = {"generos": {"$all": generos}}  # Garante que pelo menos um gênero seja encontrado
-    return collection.find(query)
+    query = {"generos": {"$all": generos}}
+    return list(collection.find(query))
 
-def atualizar_nota_filme(db: Collection, titulo_id: str, nova_nota: float):
-    return db.update_one({"titulo_id": titulo_id}, {"$set": {"nota": nova_nota}})
+def buscar_filmes_avancado(collection: Collection, generos: list, ano_min: int, nota_min: float):
+    """
+    Consulta avançada combinando múltiplos filtros, incluindo o filtro de tipo.
+    """
+    query = {
+        "generos": {"$all": generos},  # Gêneros devem conter todos os valores fornecidos
+        "ano_lancamento": {"$gte": ano_min},  # Ano de lançamento maior ou igual ao ano mínimo
+        "nota": {"$gte": nota_min},  # Nota maior ou igual à nota mínima
+    }
+    
+    filmes = list(collection.find(query))
 
-def remover_filme(db: Collection, titulo_id: str):
-    return db.delete_one({"titulo_id": titulo_id})
+    return filmes
 
-def contar_filmes_por_ano(db: Collection):
+
+# ATUALIZAÇÃO ---------------------------------------------
+
+def atualizar_nota_filme(collection: Collection, titulo_id: str, nova_nota: float):
+    return collection.update_one(
+        {"titulo_id": titulo_id},
+        {"$set": {"nota": nova_nota}}
+    )
+
+# REMOÇÃO -------------------------------------------------
+
+def remover_filme(collection: Collection, titulo_id: str):
+    return collection.delete_one({"titulo_id": titulo_id})
+
+# AGREGAÇÃO / ANÁLISE -------------------------------------
+
+def contar_filmes_por_ano(collection: Collection):
     pipeline = [
         {"$group": {"_id": "$ano_lancamento", "quantidade": {"$sum": 1}}},
         {"$sort": {"_id": 1}}
     ]
-    return list(db.aggregate(pipeline))
+    return list(collection.aggregate(pipeline))
 
-def media_notas_por_genero(db: Collection):
+def media_notas_por_genero(collection: Collection):
     pipeline = [
         {"$unwind": "$generos"},
-        {"$group": {"_id": "$generos", "media_nota": {"$avg": "$nota"}}},
+        {"$group": {
+            "_id": "$generos",
+            "soma_nota": {"$sum": "$nota"},
+            "contagem": {"$sum": 1}
+        }},
+        {"$project": {
+            "_id": 0,
+            "genero": "$_id",
+            "media_nota": {"$divide": ["$soma_nota", "$contagem"]}
+        }},
         {"$sort": {"media_nota": -1}}
     ]
-    return list(db.aggregate(pipeline))
+    return list(collection.aggregate(pipeline))
 
-def buscar_filmes_avancado(collection, generos, ano_min, nota_min):
-    query = {
-        "generos": {"$all": generos},  # Agora exige que TODOS os gêneros estejam presentes
-        "ano_lancamento": {"$gte": ano_min},
-        "nota": {"$gte": nota_min}
-    }
-    return collection.find(query)
+from config.db_config import get_mongo_client
 
+# Inserir Filme
+def inserir_filme3(filme):
+    client = get_mongo_client()
+    try:
+        db = client['imdb_db']
+        colecao_filmes = db['filmes']
+        colecao_filmes.insert_one(filme)
+    except Exception as e:
+        print(f"Erro ao inserir o filme: {e}")
 
+# Inserir Ator
+def inserir_ator3(ator):
+    client = get_mongo_client()
+    try:
+        db = client['imdb_db']
+        colecao_atores = db['atores']
+        colecao_atores.insert_one(ator)
+    except Exception as e:
+        print(f"Erro ao inserir o ator: {e}")
+
+# Inserir Elenco (Relação Ator - Filme)
+def inserir_elenco3(elenco):
+    client = get_mongo_client()
+    try:
+        db = client['imdb_db']
+        colecao_elenco = db['elenco']
+        colecao_elenco.insert_one(elenco)
+    except Exception as e:
+        print(f"Erro ao inserir o elenco: {e}")
