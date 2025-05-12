@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import mongo_api, cassandra_api, neo4j_api
+from app.api import mongo_api, cassandra_api, neo4j_api, redis_api
 app = FastAPI(
     title="IMDB NoSQL API",
     description="API para testes com MongoDB, Cassandra, Neo4j e Redis",
@@ -9,3 +9,4 @@ app = FastAPI(
 app.include_router(mongo_api.router)
 app.include_router(cassandra_api.router)  
 app.include_router(neo4j_api.router)  
+app.include_router(redis_api.router) 

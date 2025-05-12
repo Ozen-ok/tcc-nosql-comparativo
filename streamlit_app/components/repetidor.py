@@ -12,13 +12,29 @@ REDIS_API_URL = "http://localhost:8000/redis"
 CASSANDRA_API_URL = "http://localhost:8000/cassandra"
 NEO4J_API_URL = "http://localhost:8000/neo4j"
 
+API_URLS = {
+    "mongo": MONGO_API_URL,
+    "redis": REDIS_API_URL,
+    "cassandra": CASSANDRA_API_URL,
+    "neo4j": NEO4J_API_URL,
+}
+
+
 def preparar_dados_filmes(filmes):
     if not filmes:
         return []
 
+    # Converte os filmes para um DataFrame
     df = pd.DataFrame(filmes)
 
+    # Converte a coluna 'nota' para float, se ela existir
+    if "nota" in df.columns:
+        df["nota"] = pd.to_numeric(df["nota"], errors="coerce")  # Converte para float, valores inválidos se tornam NaN
+
+    # Adiciona a URL do poster
     df["poster_url"] = df["titulo_id"].apply(lambda tid: f"assets/imagens/posters/{tid}.jpg")
+    
+    # Converte de volta para um dicionário
     return df.to_dict(orient="records")
 
 def exibir_cartao_filme(row):
@@ -54,14 +70,31 @@ def exibir_cartao_filme(row):
 
         generos_formatado = ', '.join(str(g).strip("'\"") for g in generos_lista)
         st.markdown(f"🎞️ {generos_formatado}")
-
+        
+        
         duracao = row.get("duracao", "N/A")
-        try:
-            duracao = f"{int(duracao)} minutos"
-        except:
-            duracao = "N/A"
+
+        # Se duracao for um número (float ou int), converta diretamente para int e formate
+        if isinstance(duracao, (float, int)):
+            try:
+                duracao = int(duracao)  # Converte para inteiro
+                duracao = f"{duracao} minutos"  # Formata como minutos
+            except ValueError:
+                duracao = "N/A"  # Caso tenha algum erro inesperado
+        # Se for uma string, tenta converter
+        elif isinstance(duracao, str):
+            try:
+                duracao = int(float(duracao))  # Converte para float e depois para int
+                duracao = f"{duracao} minutos"  # Formata como minutos
+            except ValueError:
+                duracao = "N/A"  # Caso a string não seja um número válido
+        else:
+            duracao = "N/A"  # Se duracao não for nem string, nem número, define como "N/A"
+
+        # Exibe apenas se o tipo não for "jogo"
         if tipo.lower() != "jogo":
             st.markdown(f"⏱️ {duracao}")
+
 
         sinopse = row.get("sinopse", "")
         if isinstance(sinopse, str) and len(sinopse) > 200:

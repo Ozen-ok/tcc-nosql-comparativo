@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from neo4j import GraphDatabase
+import redis
 from pathlib import Path
 
 # Garante que o .env seja carregado a partir da raiz do projeto
@@ -64,6 +65,9 @@ def get_neo4j_driver():
     user = NEO4J_USER
     password = NEO4J_PASSWORD
     return GraphDatabase.driver(uri, auth=(user, password))
+
+def get_redis_client():
+    return redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
 """""
 import streamlit as st

@@ -14,7 +14,7 @@ import plotly.express as px
 
 criar_botao_home()
 
-st.title("🔴 Cassandra - Operações")
+st.title("🔵 Cassandra - Operações")
 
 operacao = st.selectbox(
     "Escolha uma operação",

@@ -1,5 +1,5 @@
 import requests
-from components.repetidor import CASSANDRA_API_URL
+from components.repetidor import REDIS_API_URL
 
 # Função auxiliar para tratar resposta e verificar erros
 def tratar_resposta(response):
@@ -24,33 +24,33 @@ def inserir_filme(titulo_id, titulo, tipo, ano_lancamento, generos, nota, numero
         "duracao": duracao,
         "sinopse": sinopse
     }
-    response = requests.post(f"{CASSANDRA_API_URL}/filmes", json=payload)
+    response = requests.post(f"{REDIS_API_URL}/filmes", json=payload)
     return tratar_resposta(response)
 
 # Função para buscar filmes por gênero (via path)
 def buscar_filmes_por_genero(genero):
-    endpoint = f"{CASSANDRA_API_URL}/filmes/genero/{genero}"
+    endpoint = f"{REDIS_API_URL}/filmes/genero/{genero}"
     response = requests.get(endpoint)
     return tratar_resposta(response)
 
 # Função para atualizar nota de um filme
 def atualizar_nota(titulo_id_update, nova_nota):
-    response = requests.put(f"{CASSANDRA_API_URL}/filmes/{titulo_id_update}/nota", params={"nova_nota": nova_nota})
+    response = requests.put(f"{REDIS_API_URL}/filmes/{titulo_id_update}/nota", params={"nova_nota": nova_nota})
     return tratar_resposta(response)
 
 # Função para deletar filme
 def deletar_filme(titulo_id_delete):
-    response = requests.delete(f"{CASSANDRA_API_URL}/filmes/{titulo_id_delete}")
+    response = requests.delete(f"{REDIS_API_URL}/filmes/{titulo_id_delete}")
     return tratar_resposta(response)
 
 # Função para contar filmes por ano
 def contar_filmes_por_ano():
-    response = requests.get(f"{CASSANDRA_API_URL}/filmes/contagem/ano")
+    response = requests.get(f"{REDIS_API_URL}/filmes/contagem/ano")
     return tratar_resposta(response)
 
 # Função para média por gênero
 def media_por_genero():
-    response = requests.get(f"{CASSANDRA_API_URL}/filmes/media-nota/genero")
+    response = requests.get(f"{REDIS_API_URL}/filmes/media-nota/genero")
     return tratar_resposta(response)
 
 def busca_avancada(genero, ano_min, nota_min):
@@ -59,5 +59,8 @@ def busca_avancada(genero, ano_min, nota_min):
         "ano_min": ano_min,
         "nota_min": nota_min
     }
-    response = requests.get(f"{CASSANDRA_API_URL}/filmes/busca-avancada", params=params)
+    response = requests.get(f"{REDIS_API_URL}/filmes/busca-avancada", params=params)
     return tratar_resposta(response)
+
+
+

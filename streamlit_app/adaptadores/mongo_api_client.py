@@ -1,5 +1,4 @@
 import requests
-import pandas as pd
 from components.repetidor import MONGO_API_URL
 
 # Função auxiliar para tratar resposta e verificar erros
@@ -27,7 +26,6 @@ def inserir_filme(titulo_id, titulo, tipo, ano_lancamento, generos, nota, numero
     }
     response = requests.post(f"{MONGO_API_URL}/filmes", json=payload)
     return tratar_resposta(response)
-
 
 # Função para buscar filmes por gênero (via path)
 def buscar_filmes_por_genero(genero):
