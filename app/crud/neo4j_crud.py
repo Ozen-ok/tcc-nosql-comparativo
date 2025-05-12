@@ -1,4 +1,6 @@
 from config.db_config import get_neo4j_driver 
+from fastapi import HTTPException
+
 driver = get_neo4j_driver()
 # INSERÇÃO -------------------------------------------------
 
@@ -88,19 +90,30 @@ def buscar_filmes_avancado(generos: list, ano_min: int, nota_min: float):
 # ATUALIZAÇÃO ---------------------------------------------
 
 def atualizar_nota_filme(titulo_id: str, nova_nota: float):
-     
-    query = """
+    # Primeiro, verificar se o filme existe
+    query_check = """
+    MATCH (f:Filme {titulo_id: $titulo_id})
+    RETURN f
+    """
+    
+    query_update = """
     MATCH (f:Filme {titulo_id: $titulo_id})
     SET f.nota = $nova_nota
     RETURN f
     """
-    try:
-        with driver.session() as session:
-            result = session.run(query, titulo_id=titulo_id, nova_nota=nova_nota)
-            return result.single()["f"] if result.peek() else None
-    except Exception as e:
-        print(f"Erro ao atualizar a nota: {e}")
-        return None
+    
+    session = driver.session() 
+    # Verificar se o filme existe
+    result_check = session.run(query_check, titulo_id=titulo_id)
+    
+    if not result_check.single():
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+
+    # Se o filme existe, atualize a nota
+    result_update = session.run(query_update, titulo_id=titulo_id, nova_nota=nova_nota)
+    return result_update.single()["f"] if result_update.peek() else None
+
+
 
 # REMOÇÃO -------------------------------------------------
 
@@ -113,17 +126,16 @@ def remover_filme(titulo_id: str) -> bool:
     MATCH (f:Filme {titulo_id: $titulo_id})
     DETACH DELETE f
     """
-    try:
-        with driver.session() as session:
-            result = session.run(query_check, titulo_id=titulo_id)
-            if result.single() is None:
-                return False  # Filme não existe
-            session.run(query_delete, titulo_id=titulo_id)
-            return True
-    except Exception as e:
-        print(f"Erro ao remover filme: {e}")
-        return False
-
+    
+    session = driver.session() 
+    # Verificar se o filme existe
+    result = session.run(query_check, titulo_id=titulo_id)
+    if result.single() is None:  # Se o filme não for encontrado
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Se o filme existe, deletar o filme
+    session.run(query_delete, titulo_id=titulo_id)
+    return True  # Filme removido com sucesso
 
 # AGREGAÇÃO / ANÁLISE -------------------------------------
 

@@ -10,7 +10,6 @@ def tratar_resposta(response):
     else:
         return {"error": f"Erro {response.status_code}: {response.text}"}
 
-
 def chamar_api(banco: str, metodo: str, rota: str, params=None, json=None):
     base_url = API_URLS.get(banco)
     if not base_url:
@@ -73,3 +72,10 @@ def busca_avancada(banco, genero, ano_min, nota_min):
         "nota_min": nota_min
     }
     return chamar_api(banco, "get", "filmes/busca-avancada", params=params)
+
+def executar_em_todos_bancos(func, *args, **kwargs):
+    resultados = {}
+    for banco in API_URLS:
+        resposta = func(banco, *args, **kwargs)
+        resultados[banco] = resposta
+    return resultados

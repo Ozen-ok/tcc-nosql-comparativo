@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 # INSERÇÕES -----------------------------------------------
 
 def inserir_filme(session, filme: dict):
@@ -70,6 +72,16 @@ def buscar_filmes_avancado(session, generos: list, ano_min: int, nota_min: float
 # ATUALIZAÇÃO ---------------------------------------------
 
 def atualizar_nota_filme(session, titulo_id: str, nova_nota: float):
+    # Verificar se o filme existe
+    query = "SELECT * FROM filmes WHERE titulo_id = %s"
+    filme_existente = session.execute(query, (titulo_id,)).one()
+
+    if not filme_existente:
+        # Caso não encontre o filme, levanta um erro HTTP 404
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    
+    # Atualizar a nota do filme
     query = """
     UPDATE filmes SET nota = %s WHERE titulo_id = %s
     """
@@ -78,10 +90,19 @@ def atualizar_nota_filme(session, titulo_id: str, nova_nota: float):
 # REMOÇÃO -------------------------------------------------
 
 def remover_filme(session, titulo_id: str):
-    query = """
-    DELETE FROM filmes WHERE titulo_id = %s
-    """
+    # Verificar se o filme existe
+    query = "SELECT * FROM filmes WHERE titulo_id = %s"
+    filme_existente = session.execute(query, (titulo_id,)).one()
+
+    if not filme_existente:
+        # Caso não encontre o filme, levanta um erro HTTP 404
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Deletar o filme
+    query = "DELETE FROM filmes WHERE titulo_id = %s"
     session.execute(query, (titulo_id,))
+
+
 
 # AGREGAÇÃO / ANÁLISE -------------------------------------
 

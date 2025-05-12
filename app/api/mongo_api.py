@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pymongo.database import Database
+from fastapi import APIRouter, Depends
+from pymongo.database import Database 
 from config.db_config import get_mongo_db
+from app.utils.responses import tratar_erros, resposta_sucesso
 from app.crud.mongo_crud import (
     inserir_filme,
     inserir_ator,
@@ -18,76 +19,69 @@ router = APIRouter(prefix="/mongo", tags=["MongoDB"])
 # ------------------ INSERÇÕES ------------------
 
 @router.post("/filmes")
+@tratar_erros
 def criar_filme(filme: dict, db: Database = Depends(get_mongo_db)):
-    resultado = inserir_filme(db["filmes"], filme)
-    return {"id_inserido": str(resultado.inserted_id)}
+    id_inserido = inserir_filme(db["filmes"], filme)
+    return resposta_sucesso("Filme inserido com sucesso", {"id": id_inserido})
 
 @router.post("/atores")
+@tratar_erros
 def criar_ator(ator: dict, db: Database = Depends(get_mongo_db)):
-    resultado = inserir_ator(db["atores"], ator)
-    return {"id_inserido": str(resultado.inserted_id)}
+    id_inserido = inserir_ator(db["atores"], ator)
+    return resposta_sucesso("Ator inserido com sucesso", {"id": id_inserido})
 
 @router.post("/elenco")
+@tratar_erros
 def criar_elenco(relacao: dict, db: Database = Depends(get_mongo_db)):
-    resultado = inserir_elenco(db["elenco"], relacao)
-    return {"id_inserido": str(resultado.inserted_id)}
+    inserir_elenco(db["elenco"], relacao)
+    return resposta_sucesso("Elenco inserido com sucesso")
 
 # ------------------ CONSULTAS ------------------
 
-@router.get("/filmes/genero/{genero}")
-def filmes_por_genero(genero: str, db: Database = Depends(get_mongo_db)):
-    generos = genero.split(",")
-    filmes = buscar_filmes_por_genero(db["filmes"], generos)
+@router.get("/filmes/genero/{generos}")
+@tratar_erros
+def filmes_por_generos(generos: str, db: Database = Depends(get_mongo_db)):
+    genero_list = [g.strip() for g in generos.split(",")]
+    filmes = buscar_filmes_por_genero(db["filmes"], genero_list)
     for filme in filmes:
         filme["_id"] = str(filme["_id"])
-    return filmes
+    return resposta_sucesso("Filmes encontrados com sucesso", {"filmes": filmes})
 
 @router.get("/filmes/busca-avancada")
-def busca_avancada(
-    genero: str,
-    ano_min: int,
-    nota_min: float,
-    db: Database = Depends(get_mongo_db)
-):
+@tratar_erros
+def busca_avancada(genero: str, ano_min: int, nota_min: float, db: Database = Depends(get_mongo_db)):
     generos = genero.split(",")
     filmes = buscar_filmes_avancado(db["filmes"], generos, ano_min, nota_min)
-    
-    # Remove _id se quiser
     for filme in filmes:
-        filme.pop("_id", None)  # remove o campo _id se existir
-    
-    return filmes
+        filme.pop("_id", None)
+    return resposta_sucesso("Busca avançada concluída", {"filmes": filmes})
 
 # ------------------ ATUALIZAÇÃO ------------------
 
 @router.put("/filmes/{titulo_id}/nota")
+@tratar_erros
 def atualizar_nota(titulo_id: str, nova_nota: float, db: Database = Depends(get_mongo_db)):
-    resultado = atualizar_nota_filme(db["filmes"], titulo_id, nova_nota)
-    if resultado.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Filme não encontrado")
-    return {"modificado": resultado.modified_count}
+    atualizar_nota_filme(db["filmes"], titulo_id, nova_nota)
+    return resposta_sucesso("Nota do filme atualizada")
 
 # ------------------ REMOÇÃO ------------------
 
 @router.delete("/filmes/{titulo_id}")
+@tratar_erros
 def deletar_filme(titulo_id: str, db: Database = Depends(get_mongo_db)):
-    resultado = remover_filme(db["filmes"], titulo_id)
-    if resultado.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Filme não encontrado")
-    return {"deletado": True}
+    remover_filme(db["filmes"], titulo_id)
+    return resposta_sucesso("Filme removido com sucesso")
 
 # ------------------ AGREGAÇÃO ------------------
 
 @router.get("/filmes/contagem/ano")
+@tratar_erros
 def contagem_por_ano(db: Database = Depends(get_mongo_db)):
-    return contar_filmes_por_ano(db["filmes"])
+    resultado = contar_filmes_por_ano(db["filmes"])
+    return resposta_sucesso("Contagem por ano realizada com sucesso", {"contagem_por_ano": resultado})
 
 @router.get("/filmes/media-nota/genero")
+@tratar_erros
 def media_por_genero(db: Database = Depends(get_mongo_db)):
-    return media_notas_por_genero(db["filmes"])
-
-# ------------------ STATUS ------------------
-
-@router.get("/ping")
-def ping_mongo(db: Database = Depends(get_mongo_db)):
-    return {"status": "Mongo conectado", "colecoes": db.list_collection_names()}
+    resultado = media_notas_por_genero(db["filmes"])
+    return resposta_sucesso("Média de notas por gênero calculada", {"media_notas_por_genero": resultado})

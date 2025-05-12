@@ -2,6 +2,8 @@ import uuid
 import json
 from config.db_config import get_redis_client 
 from typing import List
+from fastapi import HTTPException
+
 r = get_redis_client()
 
 # INSERÇÕES -----------------------------------------------
@@ -95,11 +97,21 @@ def buscar_filmes_avancado(r, generos: List[str], ano_min: int, nota_min: float)
 # ATUALIZAÇÃO ---------------------------------------------
 
 def atualizar_nota_filme(r, titulo_id: str, nova_nota: float):
+    # Verificar se o filme existe
+    if not r.exists(f"filme:{titulo_id}"):
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Atualizar a nota do filme
     r.hset(f"filme:{titulo_id}", "nota", str(nova_nota))
 
 # REMOÇÃO -------------------------------------------------
 
 def remover_filme(r, titulo_id: str):
+    # Verificar se o filme existe
+    if not r.exists(f"filme:{titulo_id}"):
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Deletar o filme
     r.delete(f"filme:{titulo_id}")
 
 # AGREGAÇÃO / ANÁLISE -------------------------------------
@@ -112,7 +124,7 @@ def contar_filmes_por_ano(r):
             filme = r.hgetall(key)
             ano = filme.get("ano_lancamento")  # Não usa o prefixo 'b', porque é uma string normal
 
-            print(f"[🔍] Processando {key} - Conteúdo: {filme}")
+            #print(f"[🔍] Processando {key} - Conteúdo: {filme}")
 
             # Verifica se o campo 'ano_lancamento' existe
             if ano is not None:
@@ -163,7 +175,7 @@ def media_notas_por_genero(r):
             nota = float(filme_decodificado["nota"])
             generos = json.loads(filme_decodificado["generos"])
 
-            print(f"[🔍] Analisando {key_decodificado} | nota: {nota} | generos: {generos}")
+            #print(f"[🔍] Analisando {key_decodificado} | nota: {nota} | generos: {generos}")
 
             for g in generos:
                 if g not in generos_dict:

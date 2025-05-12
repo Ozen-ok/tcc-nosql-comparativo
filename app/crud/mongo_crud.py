@@ -1,15 +1,20 @@
 from pymongo.collection import Collection
+from fastapi import HTTPException
 
 # INSERÇÕES -----------------------------------------------
 
 def inserir_filme(collection: Collection, filme: dict):
-    return collection.insert_one(filme)
+    resultado = collection.insert_one(filme)
+    return str(resultado.inserted_id)
+
 
 def inserir_ator(collection: Collection, ator: dict):
-    return collection.insert_one(ator)
+    resultado = collection.insert_one(ator)
+    return str(resultado.inserted_id)
 
 def inserir_elenco(collection: Collection, relacao: dict):
-    return collection.insert_one(relacao)
+    resultado = collection.insert_one(relacao)
+    return str(resultado.inserted_id)
 
 # CONSULTAS -----------------------------------------------
 
@@ -38,15 +43,35 @@ def buscar_filmes_avancado(collection: Collection, generos: list, ano_min: int, 
 # ATUALIZAÇÃO ---------------------------------------------
 
 def atualizar_nota_filme(collection: Collection, titulo_id: str, nova_nota: float):
-    return collection.update_one(
+    # Verificar se o filme existe
+    resultado = collection.find_one({"titulo_id": titulo_id})
+    
+    if not resultado:
+        # Se o filme não existe, lançar um erro HTTP
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Atualizar a nota do filme se ele existir
+    collection.update_one(
         {"titulo_id": titulo_id},
         {"$set": {"nota": nova_nota}}
     )
+    return {"status": "sucesso", "mensagem": "Nota do filme atualizada com sucesso"}
+
 
 # REMOÇÃO -------------------------------------------------
 
-def remover_filme(collection: Collection, titulo_id: str):
-    return collection.delete_one({"titulo_id": titulo_id})
+def remover_filme(collection: Collection, titulo_id: str) -> bool:
+    # Verificar se o filme existe antes de tentar removê-lo
+    resultado = collection.find_one({"titulo_id": titulo_id})
+    
+    if not resultado:
+        raise HTTPException(status_code=404, detail=f"Filme com o título ID '{titulo_id}' não encontrado")
+    
+    # Caso o filme exista, realizar a remoção
+    resultado = collection.delete_one({"titulo_id": titulo_id})
+    return resultado.deleted_count > 0  # Retorna True se a remoção for bem-sucedida
+
+
 
 # AGREGAÇÃO / ANÁLISE -------------------------------------
 
