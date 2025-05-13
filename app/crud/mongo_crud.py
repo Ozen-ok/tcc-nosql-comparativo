@@ -99,6 +99,23 @@ def media_notas_por_genero(collection: Collection):
     ]
     return list(collection.aggregate(pipeline))
 
+def ordenar_resultados(collection: Collection, query: dict, ordenar_por: str = 'nota', ordem: int = -1):
+    """
+    Função para ordenar os resultados de uma consulta.
+    
+    :param collection: A coleção onde a consulta será realizada.
+    :param query: O filtro da consulta.
+    :param ordenar_por: O campo pelo qual ordenar (default 'nota').
+    :param ordem: A ordem da ordenação (-1 para decrescente, 1 para crescente).
+    :return: Os resultados ordenados da consulta.
+    """
+    # Definir a ordenação
+    ordenacao = [(ordenar_por, ordem)]  # -1 para decrescente, 1 para crescente
+    
+    # Retornar os resultados ordenados
+    return list(collection.find(query).sort(ordenacao))
+
+
 from config.db_config import get_mongo_client
 
 # Inserir Filme

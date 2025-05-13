@@ -104,8 +104,8 @@ def buscar_1():
             elif not filmes_raw:
                 st.warning(f"{banco}: Nenhum resultado encontrado.")
             else:
-                print(f"\nDEBUG: {banco} - tipo: {type(filmes)} - qtd: {len(filmes)}\n")
-                filmes = filmes_raw.get("dados", {}).get("filmes", [])
+                # Aqui, você pode acessar diretamente a chave 'filmes' no resultado
+                filmes = filmes_raw.get("filmes", [])  # Modificado para buscar diretamente 'filmes'
                 for row in preparar_dados_filmes(filmes):
                     exibir_cartao_filme(row)
 
@@ -169,12 +169,11 @@ def contar():
                 st.error(f"{banco}: {resposta['error']}")
             else:
                 try:
-                    # Certifica-se de que a resposta seja uma lista de dicionários
-                    dados = [item for item in resposta]  # Garante que é uma lista de dicionários
-                    df = pd.DataFrame(dados)
+                    df = pd.DataFrame(resposta.get("contagem_por_ano", []))
 
                     # Exibe o DataFrame (opcional, pode ser removido se não necessário)
-                    st.write(df)
+                    #st.write(df)
+                    #df = pd.json_normalize(df["quantidade"])
 
                     # Geração do gráfico
                     fig = px.bar(df, x='_id', y='quantidade', 
@@ -190,13 +189,17 @@ def buscar_2():
     genero_b = st.text_input("Gêneros", "Drama")
     ano_min = st.number_input("Ano Mínimo", 1900, 2100, 2000)
     nota_min = st.number_input("Nota Mínima", 0.0, 10.0, 7.0)
+    
     if st.button("Buscar Avançado"):
         resultados = handle_busca_avancada(genero_b, ano_min, nota_min)
+        
         for banco, filmes_raw in resultados.items():
             if "error" in filmes_raw:
                 st.error(f"{banco}: {filmes_raw['error']}")
             elif "warning" in filmes_raw:
                 st.warning(f"{banco}: {filmes_raw['warning']}")
             else:
-                for row in preparar_dados_filmes(filmes_raw):
+                # Acessa a chave "filmes" diretamente
+                filmes = filmes_raw.get("filmes", [])
+                for row in preparar_dados_filmes(filmes):
                     exibir_cartao_filme(row)

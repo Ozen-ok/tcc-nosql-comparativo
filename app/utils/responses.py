@@ -8,7 +8,8 @@ def resposta_sucesso(mensagem: str, dados: dict = None):
     response = {"status": "sucesso", "mensagem": mensagem}
     if dados:
         response.update(dados)
-    return mensagem
+    return response  # Retorna o dicionário completo, não apenas a mensagem
+
 
 def resposta_erro(mensagem: str, status_code: int = 400):
     return JSONResponse(
