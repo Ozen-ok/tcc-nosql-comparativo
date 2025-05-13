@@ -50,12 +50,6 @@ def inserir_filme(banco, titulo_id, titulo, tipo, ano_lancamento, generos, nota,
     }
     return chamar_api(banco, "post", "filmes", json=payload)
 
-def buscar_filmes_por_genero(banco, genero):
-    return chamar_api(banco, "get", f"filmes/genero/{genero}")
-
-def atualizar_nota(banco, titulo_id_update, nova_nota):
-    return chamar_api(banco, "put", f"filmes/{titulo_id_update}/nota", params={"nova_nota": nova_nota})
-
 def deletar_filme(banco, titulo_id_delete):
     return chamar_api(banco, "delete", f"filmes/{titulo_id_delete}")
 
@@ -66,12 +60,19 @@ def media_por_genero(banco):
     return chamar_api(banco, "get", "filmes/media-nota/genero")
 
 def busca_avancada(banco, genero, ano_min, nota_min):
-    params = {
-        "genero": genero,
-        "ano_min": ano_min,
-        "nota_min": nota_min
-    }
-    return chamar_api(banco, "get", "filmes/busca-avancada", params=params)
+    return chamar_api(banco, "get", "filmes/busca-avancada", params={"genero": genero, "ano_min": ano_min, "nota_min": nota_min})
+
+def busca_simples(banco, campo, valor):
+    return chamar_api(banco, "get", "filmes/busca-simples", params={"campo": campo, "valor": valor})
+
+def atualizar_campo(banco, titulo_id_update, campo, valor):
+    return chamar_api(banco, "put", f"filmes/{titulo_id_update}/{campo}", params={"valor": valor})
+
+def listar_atores_por_filme(banco, titulo_id):
+    return chamar_api(banco, "get", f"filmes/{titulo_id}/atores")
+
+def filmes_por_ator(banco, nome_ator):
+    return chamar_api(banco, "get", f"filmes/por-ator/{nome_ator}")
 
 def executar_em_todos_bancos(func, *args, **kwargs):
     resultados = {}

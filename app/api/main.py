@@ -7,6 +7,6 @@ app = FastAPI(
 )
 
 app.include_router(mongo_api.router)
-app.include_router(cassandra_api.router)  
-app.include_router(neo4j_api.router)  
-app.include_router(redis_api.router) 
+#app.include_router(cassandra_api.router)  
+#app.include_router(neo4j_api.router)  
+#app.include_router(redis_api.router) 

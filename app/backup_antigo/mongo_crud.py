@@ -1,22 +1,6 @@
 from pymongo.collection import Collection
 from fastapi import HTTPException
 
-def ordenar_resultados(collection: Collection, query: dict, ordenar_por: str, ordem: int):
-    """
-    Função para ordenar os resultados de uma consulta.
-    
-    :param collection: A coleção onde a consulta será realizada.
-    :param query: O filtro da consulta.
-    :param ordenar_por: O campo pelo qual ordenar (default 'nota').
-    :param ordem: A ordem da ordenação (-1 para decrescente, 1 para crescente).
-    :return: Os resultados ordenados da consulta.
-    """
-    # Definir a ordenação
-    ordenacao = [(ordenar_por, ordem)]  # -1 para decrescente, 1 para crescente
-    
-    # Retornar os resultados ordenados
-    return list(collection.find(query).sort(ordenacao))
-
 # INSERÇÕES -----------------------------------------------
 
 def inserir_filme(collection: Collection, filme: dict):
@@ -34,33 +18,15 @@ def inserir_elenco(collection: Collection, relacao: dict):
 
 # CONSULTAS -----------------------------------------------
 
-def buscar_filmes_simples(collection: Collection, campo: str, valor: any, ordenar_por: str = 'nota', ordem: int = -1):
+def buscar_filmes_por_genero(collection: Collection, generos: list, ordenar_por: str = 'nota', ordem: int = -1):
     """
-    Função para buscar filmes com base em um campo específico (como título, nota, ano de lançamento, etc.).
-    :param collection: A coleção de filmes.
-    :param campo: O campo a ser filtrado (ex: "titulo", "nota", "ano_lancamento").
-    :param valor: O valor que será procurado no campo especificado.
-    :param ordenar_por: O campo pelo qual os resultados serão ordenados (default é 'nota').
-    :param ordem: A direção da ordenação (1 para crescente, -1 para decrescente).
-    :return: Lista de filmes que atendem ao filtro, ordenados pelo campo especificado.
+    Busca filmes que tenham pelo menos todos os gêneros informados e ordena por um critério (nota ou ano_lancamento).
     """
+    query = {"generos": {"$all": generos}}
     
-    # Criação do filtro baseado no campo e valor passados
-    if campo == "titulo":
-        filtro = {"titulo": {"$regex": valor, "$options": "i"}}  # Filtro case-insensitive para o título
-    elif campo == "nota":
-        filtro = {"nota": {"$gte": valor}}  # Busca por filmes com nota maior ou igual ao valor
-    elif campo == "ano_lancamento":
-        filtro = {"ano_lancamento": {"$gte": valor}}  # Busca por filmes lançados após o ano
-    elif campo == "generos":
-        filtro = {"generos": {"$all": valor}}  # Busca filmes que tenham todos os gêneros fornecidos
-    elif campo == "tipo":
-        filtro = {"tipo": valor}  # Busca filmes do tipo especificado
-    else:
-        raise ValueError(f"Campo '{campo}' não reconhecido. Utilize um campo válido como 'titulo', 'nota', 'ano_lancamento', etc.")
+    # Aplicando a ordenação
+    return ordenar_resultados(collection, query, ordenar_por, ordem)
 
-    # Realiza a busca com o filtro fornecido e aplica a ordenação
-    return ordenar_resultados(collection, filtro, ordenar_por, ordem)
 
 def buscar_filmes_avancado(collection: Collection, generos: list, ano_min: int, nota_min: float, ordenar_por: str, ordem: int):
     """
@@ -75,12 +41,43 @@ def buscar_filmes_avancado(collection: Collection, generos: list, ano_min: int, 
     # Aplicando a ordenação
     return ordenar_resultados(collection, query, ordenar_por, ordem)
 
+def buscar_filmes_por_titulo(collection: Collection, titulo: str, ordenar_por: str = 'nota', ordem: int = -1):
+    """
+    Busca filmes cujo título contenha a string fornecida (case-insensitive).
+    """
+    query = {
+        "titulo": {"$regex": titulo, "$options": "i"}  # "i" = case-insensitive
+    }
+    return ordenar_resultados(collection, query, ordenar_por, ordem)
+
+def buscar_filmes_por_ano(collection: Collection, ano_min: int = None, ano_max: int = None, ordenar_por: str = 'nota', ordem: int = -1):
+    """
+    Busca filmes lançados em um ano específico ou dentro de um intervalo.
+    """
+    query = {}
+
+    if ano_min is not None and ano_max is not None:
+        query["ano_lancamento"] = {"$gte": ano_min, "$lte": ano_max}
+    elif ano_min is not None:
+        query["ano_lancamento"] = {"$gte": ano_min}
+    elif ano_max is not None:
+        query["ano_lancamento"] = {"$lte": ano_max}
+
+    return ordenar_resultados(collection, query, ordenar_por, ordem)
+
+def buscar_filmes_por_tipo(collection: Collection, tipo: str, ordenar_por: str = 'nota', ordem: int = -1):
+    """
+    Busca filmes com base no tipo (ex: 'movie', 'tvSeries', etc.) e ordena os resultados.
+    """
+    query = {"tipo": tipo}
+    return ordenar_resultados(collection, query, ordenar_por, ordem)
+
 def buscar_filmes_por_ator(
     filmes_collection: Collection,
     elenco_collection: Collection,
     atores_collection: Collection,
     nome_ator: str,
-    ordenar_por: str = 'ano_lancamento',
+    ordenar_por: str = 'nota',
     ordem: int = -1
 ):
     """
@@ -142,6 +139,8 @@ def atualizar_campo_filme(collection: Collection, titulo_id: str, campo: str, no
     
     return {"status": "sucesso", "mensagem": f"{campo} do filme atualizado com sucesso"}
 
+
+
 # REMOÇÃO -------------------------------------------------
 
 def remover_filme(collection: Collection, titulo_id: str) -> bool:
@@ -154,6 +153,8 @@ def remover_filme(collection: Collection, titulo_id: str) -> bool:
     # Caso o filme exista, realizar a remoção
     resultado = collection.delete_one({"titulo_id": titulo_id})
     return resultado.deleted_count > 0  # Retorna True se a remoção for bem-sucedida
+
+
 
 # AGREGAÇÃO / ANÁLISE -------------------------------------
 
@@ -181,56 +182,68 @@ def media_notas_por_genero(collection: Collection):
     ]
     return list(collection.aggregate(pipeline))
 
-def buscar_atores_por_filmes(collection_filmes: Collection, collection_elenco: Collection, collection_atores: Collection, titulo_id: str):
+def listar_atores_por_filme(collection_filmes: Collection, collection_elenco: Collection, titulo_id: str):
     """
-    Lista os atores que participaram de um filme, com detalhes como nome, ano de nascimento,
-    personagem e outros filmes que participou (com título, ano e ID para imagem).
+    Lista os atores que participaram de um filme, dado seu titulo_id.
     """
-    # Busca os registros de elenco associados ao título
-    elenco = list(collection_elenco.find({"titulo_id": titulo_id}))
-
+    # Busca os atores relacionados ao título
+    elenco = collection_elenco.find({"titulo_id": titulo_id})
+    
     # Coleta os IDs dos atores
-    ator_ids = [item["ator_id"] for item in elenco]
+    ator_ids = [elenco_item["ator_id"] for elenco_item in elenco]
+    
+    # Busca as informações dos atores
+    atores = collection_filmes.find({"ator_id": {"$in": ator_ids}})
+    
+    # Organiza os atores (exemplo: nome_ator, ator_id)
+    atores_resultado = [{"ator_id": ator["ator_id"], "nome_ator": ator["nome_ator"]} for ator in atores]
+    
+    return atores_resultado
 
-    # Busca as informações dos atores na collection de filmes (ou atores, dependendo da sua estrutura)
-    atores = list(collection_atores.find({"ator_id": {"$in": ator_ids}}))
+def buscar_filmes_simples(collection: Collection, campo: str, valor: any, ordenar_por: str = 'nota', ordem: int = -1):
+    """
+    Função para buscar filmes com base em um campo específico (como título, nota, ano de lançamento, etc.).
+    :param collection: A coleção de filmes.
+    :param campo: O campo a ser filtrado (ex: "titulo", "nota", "ano_lancamento").
+    :param valor: O valor que será procurado no campo especificado.
+    :param ordenar_por: O campo pelo qual os resultados serão ordenados (default é 'nota').
+    :param ordem: A direção da ordenação (1 para crescente, -1 para decrescente).
+    :return: Lista de filmes que atendem ao filtro, ordenados pelo campo especificado.
+    """
+    
+    # Criação do filtro baseado no campo e valor passados
+    if campo == "titulo":
+        filtro = {"titulo": {"$regex": valor, "$options": "i"}}  # Filtro case-insensitive para o título
+    elif campo == "nota":
+        filtro = {"nota": {"$gte": valor}}  # Busca por filmes com nota maior ou igual ao valor
+    elif campo == "ano_lancamento":
+        filtro = {"ano_lancamento": {"$gte": valor}}  # Busca por filmes lançados após o ano
+    elif campo == "generos":
+        filtro = {"generos": {"$all": valor}}  # Busca filmes que tenham todos os gêneros fornecidos
+    elif campo == "tipo":
+        filtro = {"tipo": valor}  # Busca filmes do tipo especificado
+    else:
+        raise ValueError(f"Campo '{campo}' não reconhecido. Utilize um campo válido como 'titulo', 'nota', 'ano_lancamento', etc.")
 
-    resultado = []
-    for ator in atores:
-        print("ator encontrado.")
-        ator_id = ator.get("ator_id")
-        nome = ator.get("nome_ator")
-        ano_nascimento = ator.get("ano_nascimento")
+    # Realiza a busca com o filtro fornecido e aplica a ordenação
+    return ordenar_resultados(collection, filtro, ordenar_por, ordem)
 
-        # Pega personagem correspondente a esse ator no filme atual
-        personagem = next((item["nome_personagem"] for item in elenco if item["ator_id"] == ator_id), "Desconhecido")
+def ordenar_resultados(collection: Collection, query: dict, ordenar_por: str, ordem: int):
+    """
+    Função para ordenar os resultados de uma consulta.
+    
+    :param collection: A coleção onde a consulta será realizada.
+    :param query: O filtro da consulta.
+    :param ordenar_por: O campo pelo qual ordenar (default 'nota').
+    :param ordem: A ordem da ordenação (-1 para decrescente, 1 para crescente).
+    :return: Os resultados ordenados da consulta.
+    """
+    # Definir a ordenação
+    ordenacao = [(ordenar_por, ordem)]  # -1 para decrescente, 1 para crescente
+    
+    # Retornar os resultados ordenados
+    return list(collection.find(query).sort(ordenacao))
 
-        # Busca todos os títulos que esse ator participou
-        participacoes = list(collection_elenco.find({"ator_id": ator_id}))
-        titulo_ids = [p["titulo_id"] for p in participacoes]
-
-        # Recupera os títulos e anos para exibir junto com o ID
-        titulos = []
-        for tid in titulo_ids:
-            filme = collection_filmes.find_one({"titulo_id": tid})
-            if filme:
-                titulos.append({
-                    "titulo": filme.get("titulo", "Desconhecido"),
-                    "ano": filme.get("ano_lancamento", "N/A"),
-                    "titulo_id": filme.get("titulo_id")  # necessário para a imagem
-                })
-
-        resultado.append({
-            "ator_id": ator_id,
-            "nome_ator": nome,
-            "ano_nascimento": ano_nascimento,
-            "nome_personagem": personagem,
-            "titulos": titulos  # cada um com titulo, ano, titulo_id
-        })
-    return resultado
-
-
-"""""
 from config.db_config import get_mongo_client
 
 # Inserir Filme
@@ -262,4 +275,3 @@ def inserir_elenco3(elenco):
         colecao_elenco.insert_one(elenco)
     except Exception as e:
         print(f"Erro ao inserir o elenco: {e}")
-"""""

@@ -1,6 +1,5 @@
 import streamlit as st
-from components.operacoes import inserir, buscar_1, atualizar, deletar, media, contar, buscar_2
-
+from components.operacoes import inserir, realizar_busca_simples, atualizar, deletar, media, contar, busca_ava, listar_filmes_por_ator, atores_por_filme
 if st.button("Home"):
         st.switch_page("pages/Home.py")
 
@@ -11,23 +10,34 @@ st.write("Aproveite a experiência!")
 #st.image("assets/plankton.png", caption="Plankton - O melhor amigo do desenvolvedor!")
 st.write("Desenvolvido por Ozen e equipe.")
 
-st.subheader("🟢 MongoDB, Cassandra, Neo4j e Redis - Operações")
+
+st.title("🟢 MongoDB, Cassandra, Neo4j e Redis - Operações")
 
 operacao = st.selectbox(
     "Escolha uma operação",
-    ["Inserção", "Consulta", "Atualização", "Remoção", "Agregação: Média por Gênero", "Agregação: Contagem por Ano", "Índices (Busca Avançada)"]
+    [
+        "Inserir Filme",
+        "Buscar Filmes por Campo (Simples)",
+        "Atualizar Campo do Filme",
+        "Remover Filme",
+        "Agregação: Média por Gênero",
+        "Agregação: Contagem por Ano",
+        "Índices (Busca Avançada)",
+        "Listar Atores por Filme",
+        "Listar Filmes por Ator"
+    ]
 )
 
-if operacao == "Inserção":
+if operacao == "Inserir Filme":
     inserir()
 
-elif operacao == "Consulta":
-    buscar_1()
+elif operacao == "Buscar Filmes por Campo (Simples)":
+    realizar_busca_simples()
 
-elif operacao == "Atualização":
-    atualizar()   
+elif operacao == "Atualizar Campo do Filme":
+    atualizar()
 
-elif operacao == "Remoção":
+elif operacao == "Remover Filme":
     deletar()
 
 elif operacao == "Agregação: Média por Gênero":
@@ -37,4 +47,11 @@ elif operacao == "Agregação: Contagem por Ano":
     contar()
 
 elif operacao == "Índices (Busca Avançada)":
-    buscar_2()
+    busca_ava()
+
+elif operacao == "Listar Filmes por Ator":
+    listar_filmes_por_ator()
+
+elif operacao == "Listar Atores por Filme":
+    atores_por_filme()
+

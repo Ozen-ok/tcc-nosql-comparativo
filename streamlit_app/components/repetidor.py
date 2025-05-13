@@ -7,10 +7,10 @@ CASSANDRA_API_URL = "http://localhost:8000/cassandra"
 NEO4J_API_URL = "http://localhost:8000/neo4j"
 
 API_URLS = {
-    "mongo": MONGO_API_URL,
-    "redis": REDIS_API_URL,
-    "cassandra": CASSANDRA_API_URL,
-    "neo4j": NEO4J_API_URL,
+    "mongo": MONGO_API_URL
+    #"redis": REDIS_API_URL,
+    #"cassandra": CASSANDRA_API_URL,
+    #"neo4j": NEO4J_API_URL,
 }
 
 def preparar_dados_filmes(filmes):
@@ -28,6 +28,31 @@ def preparar_dados_filmes(filmes):
     df["poster_url"] = df["titulo_id"].apply(lambda tid: f"assets/imagens/posters/{tid}.jpg")
     
     # Converte de volta para um dicionário
+    return df.to_dict(orient="records")
+
+def preparar_dados_atores(atores):
+    if not atores:
+        return []
+
+    # Converte os filmes para um DataFrame
+    df = pd.DataFrame(atores)
+
+    # Adiciona a URL do poster
+    df["poster_url"] = df["titulo_id"].apply(lambda tid: f"assets/imagens/actors/{tid}.jpg")
+    
+    # Converte de volta para um dicionário
+    return df.to_dict(orient="records")
+
+def preparar_dados_atores_por_filme(atores):
+    if not atores:
+        return []
+    print(atores)
+    df = pd.DataFrame(atores)
+    print(df)
+
+    # Corrige a coluna de imagem para atores
+    df["poster_url"] = df["ator_id"].apply(lambda aid: f"assets/imagens/actors/{aid}.jpg")
+
     return df.to_dict(orient="records")
 
 def verificar_titulos_sem_imagem(filmes):
