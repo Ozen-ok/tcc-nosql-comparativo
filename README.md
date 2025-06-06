@@ -138,8 +138,6 @@ Os resultados serão salvos em arquivos `.json` dentro da mesma pasta.
 
 ---
 
-### 👨‍💻 Autor
-
-**Ozen** 
+### 👨‍💻 Autor - **Ozen** 
 
 ![alt text](https://raw.githubusercontent.com/Ozen-ok/tcc-nosql-comparativo/refs/heads/main/assets/plankton.png)
