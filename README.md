@@ -1,4 +1,3 @@
-# tcc-nosql-comparativo
 # 🎓 TCC: Análise Comparativa de Bancos de Dados NoSQL
 
 ## "Aplicabilidade e desempenho de banco de dados NoSQL em aplicações modernas: um estudo de caso em MongoDB, Cassandra, Neo4j e Redis."
