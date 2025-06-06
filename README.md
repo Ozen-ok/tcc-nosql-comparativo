@@ -143,4 +143,4 @@ Os resultados serão salvos em arquivos `.json` dentro da mesma pasta.
 
 **Ozen** 
 
-![alt text](https://raw.githubusercontent.com/Ozen-ok/tcc-nosql-comparativo/refs/heads/main/assets/plankton.png) "Plankton")
+![alt text](https://raw.githubusercontent.com/Ozen-ok/tcc-nosql-comparativo/refs/heads/main/assets/plankton.png)
