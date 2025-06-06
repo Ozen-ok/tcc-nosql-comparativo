@@ -1,1 +1,0 @@
-# config/__init__.py (pode estar vazio)

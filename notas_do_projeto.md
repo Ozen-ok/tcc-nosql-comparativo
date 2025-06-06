@@ -1,0 +1,4 @@
+Redis: 
+
+Essa é a nossa principal descoberta aqui. O Redis, que a gente esperava ser o mais rápido de todos, ficou com tempos na casa de 1.7s, quase tão lento quanto o Cassandra.
+Isso NÃO é normal para o Redis e me diz uma coisa: a nossa abordagem de inserção no Redis está causando um gargalo. Revendo o código de carregar_dados_redis, ele chama inserir_filme para cada linha do dataframe. Dentro de inserir_filme, a gente faz um HMSET para o filme e depois vários SADD para cada gênero, ano e tipo. Isso gera muitas viagens de ida e volta (round-trips) para o servidor Redis dentro de um loop. É a latência de rede somada, e não o processamento do Redis, que está matando nosso tempo.
