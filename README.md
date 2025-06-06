@@ -141,4 +141,6 @@ Os resultados serão salvos em arquivos `.json` dentro da mesma pasta.
 
 ### 👨‍💻 Autor
 
-**Ozen** - [Seu LinkedIn ou GitHub aqui]
+**Ozen** 
+
+![alt text](https://raw.githubusercontent.com/Ozen-ok/tcc-nosql-comparativo/refs/heads/main/assets/plankton.png) "Plankton")
