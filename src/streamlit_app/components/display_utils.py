@@ -85,12 +85,12 @@ def exibir_cartao_filme(filme: dict, col_streamlit=None, pagina_origem_path="pag
 
     # --- O restante do conteúdo do cartão continua igual ---
     container.subheader(f"{filme_display.get('titulo', 'N/A')} ({int(filme_display.get('ano_lancamento', 0))})")
-    if filme_display.get("nota", 0) == 0 or filme_display.get("nota", "0") == "0"  # Considera 0 como não lançado/sem nota
+    if filme_display.get("nota", 0) == 0: # Considera 0 como não lançado/sem nota
         container.markdown("⭐ Ainda não lançado | 🗳️ Votos indisponíveis")
     else:
         container.markdown(f"⭐ {filme_display.get('nota_formatada', 'N/A')} | 🗳️ {filme_display.get('votos_formatados', 'N/A')} votos")
     
-    if filme_display.get("tipo", "").lower() != "jogo": # Não mostra duração para jogos
+    if filme_display.get("tipo", "").lower() != "jogo" and  filme_display.get("nota", 0) != 0:# Não mostra duração para jogos
          duracao_filme = filme_display.get('duracao')
          container.markdown(f"⏱️ {duracao_filme if duracao_filme else 'N/A'} min.")
     
