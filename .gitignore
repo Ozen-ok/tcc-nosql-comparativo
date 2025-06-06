@@ -1,3 +1,35 @@
-/app/datass/
-/app/__pycache__/
+# --- Ambiente Virtual ---
+# Nunca comente a pasta do ambiente virtual. Ela é específica do seu sistema
+# e pode ser recriada a partir do requirements.txt.
 .venv/
+venv/
+
+# --- Cache e Arquivos Gerados pelo Python ---
+# Pasta de cache que o Python cria
+__pycache__/
+# Arquivos de bytecode compilado
+*.pyc
+
+# --- Configurações do Editor/IDE ---
+# Pasta de configurações do Visual Studio Code
+.vscode/
+
+# --- Arquivos Sensíveis e de Ambiente ---
+# Arquivo com senhas, chaves de API e outras configurações locais.
+# NUNCA envie este arquivo para o repositório.
+.env
+
+# --- Resultados de Testes e Logs ---
+# É uma boa prática não versionar arquivos de resultado gerados,
+# pois eles podem ser grandes e são artefatos dos testes, não código-fonte.
+/testes/resultados_*.json
+
+# --- Arquivos de Sistema Operacional ---
+# Arquivos do macOS
+.DS_Store
+# Arquivos do Windows
+Thumbs.db
+
+# --- Outros ---
+# Arquivos de log
+*.log
