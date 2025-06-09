@@ -98,7 +98,8 @@ Backend (API FastAPI): http://localhost:8000
 Documentação da API (Swagger): http://localhost:8000/docs
 Mongo Express (Interface para MongoDB): http://localhost:8081
 
-🧪 Execução dos Testes de Desempenho\
+🧪 Execução dos Testes de Desempenho
+
 Os scripts para os testes de performance estão na pasta /testes. Para executá-los, certifique-se de que os contêineres da aplicação estão no ar (docker-compose up) e, em um novo terminal, execute os scripts desejados.
 
 Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
