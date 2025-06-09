@@ -104,10 +104,16 @@ Os scripts para os testes de performance estão na pasta /testes. Para executá-
 Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
 
 #### Exemplo para o teste de inserção
+
+```bash
 python testes/teste_insercao.py
+```
 
 #### Exemplo para o teste de busca
+
+```bash
 python testes/teste_busca_avancada.py
+```
 
 ### 👨‍💻 Autor - **Ozen** 
 
