@@ -17,8 +17,6 @@ COPY ./data /app/data
 # 5. Copia os assets (imagens, logos, etc.) para o contêiner.
 COPY ./assets /app/assets
 
-COPY ./testes /app/testes
-
 # 6. Copia todo o seu código-fonte para dentro do contêiner.
 COPY ./src /app/src
 

@@ -1,13 +1,13 @@
 services:
-  # --- BANCOS DE DADOS (Sua configuração original, mantida) ---
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=ImdbSecure2025
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongodb_data:/data/db
     networks:
@@ -20,10 +20,10 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=ImdbSecure2025
-      - ME_CONFIG_MONGODB_URL=mongodb://root:ImdbSecure2025@mongodb:27017/
-      - ME_CONFIG_BASICAUTH=false
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USER}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
     networks:
       - app_network
     depends_on:
@@ -34,9 +34,11 @@ services:
     container_name: cassandra
     ports:
       - "9042:9042"
-    # Adicionando um healthcheck para garantir que o cassandra esteja pronto
+    environment:
+      CASSANDRA_USER: ${CASSANDRA_USER}
+      CASSANDRA_PASSWORD: ${CASSANDRA_PASSWORD}
     healthcheck:
-      test: ["CMD", "cqlsh", "-u", "cassandra", "-p", "cassandra", "-e", "describe keyspaces"]
+      test: ["CMD", "cqlsh", "-u", "${CASSANDRA_USER}", "-p", "${CASSANDRA_PASSWORD}", "-e", "describe keyspaces"]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -52,7 +54,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     environment:
-      - NEO4J_AUTH=none # Simplificando para o ambiente de dev
+      NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
     volumes:
       - neo4j_data:/data
     networks:
@@ -68,14 +70,14 @@ services:
     networks:
       - app_network
 
-  # --- APLICAÇÃO (Substituindo o seu serviço 'assets' antigo) ---
+  # --- APLICAÇÃO ---
   api:
     build:
       context: .
-      dockerfile: Dockerfile # Usando nosso Dockerfile principal
+      dockerfile: Dockerfile
     container_name: tcc_api_server
     env_file:
-      - .env  # <<<--- ADICIONE ESSA LINHA AQUI
+      - .env
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src:/app/src
@@ -87,7 +89,7 @@ services:
       mongodb:
         condition: service_started
       cassandra:
-        condition: service_healthy # Espera o cassandra estar realmente pronto
+        condition: service_healthy
       neo4j:
         condition: service_started
       redis:
@@ -98,7 +100,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile # Usando o mesmo Dockerfile
+      dockerfile: Dockerfile
     container_name: tcc_streamlit_app
     command: streamlit run src/streamlit_app/app.py --server.port 8501 --server.address 0.0.0.0
     volumes:

@@ -59,7 +59,7 @@ def plotar_grafico(df, titulo):
 # --- Layout dos Testes ---
 testes = {
     "Inserção em Lote": {
-        "filepath": "testes/resultados_insercao.json",
+        "filepath": "src/streamlit_app/resultados_oficiais/resultados_insercao.json",
         "descricao": "Carga inicial de ~1800 registros (filmes, atores, elenco). Mede a performance de escrita massiva.",
         "analise": {
             "🏆 Vencedor: Redis (Execução Pura)": "Com o pipeline otimizado, o tempo de execução no servidor Redis é de meros **~40ms**. A maior parte do tempo total (~0.43s) é gasta no preparo dos dados em Python, provando que a otimização do cliente é crucial.",
@@ -69,7 +69,7 @@ testes = {
         }
     },
     "Busca Avançada": {
-        "filepath": "testes/resultados_busca.json",
+        "filepath": "src/streamlit_app/resultados_oficiais/resultados_busca.json",
         "descricao": "Busca complexa com múltiplos filtros (tipo, ano, múltiplos gêneros, nota). Mede a eficiência dos índices e motores de consulta.",
         "analise": {
             "🏆 Vencedor: Neo4j (~0.014s)": "Imbatível. Uma vez que o plano de consulta é cacheado, sua capacidade de percorrer padrões de dados é superior para leituras complexas.",
@@ -79,7 +79,7 @@ testes = {
         }
     },
     "Agregação (Média por Gênero)": {
-        "filepath": "testes/resultados_media_genero.json",
+        "filepath": "src/streamlit_app/resultados_oficiais/resultados_media_genero.json",
         "descricao": "Agregação complexa que exige desmembrar um array e calcular uma média. Testa a capacidade analítica de cada banco.",
         "analise": {
             "🏆 Vencedor: Neo4j (~0.01s)": "Novamente o campeão. Operações analíticas são naturais para o Cypher, que resolveu a consulta de forma nativa e eficiente.",
@@ -89,7 +89,7 @@ testes = {
         }
     },
     "Busca por Relacionamento": {
-        "filepath": "testes/resultados_filmes_ator.json",
+        "filepath": "src/streamlit_app/resultados_oficiais/resultados_filmes_ator.json",
         "descricao": "Busca de todos os filmes de um ator específico. Testa a eficiência em percorrer relacionamentos 1-N.",
         "analise": {
             "🏆 Vencedor: Neo4j (~0.017s)": "Este é o seu 'habitat natural'. Percorrer um relacionamento existente é a operação mais rápida e fundamental em um banco de grafos.",

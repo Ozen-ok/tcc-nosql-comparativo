@@ -25,9 +25,28 @@ Este repositório contém o código-fonte e os resultados do projeto de TCC que 
     * 🕸️ **Neo4j:** Banco de dados de grafos.
     * ⚡ **Redis:** Banco de dados em memória (chave-valor).
 * **Infraestrutura:** Docker, Docker Compose
-* **Validação de Dados:** Pydantic
 
 ---
+
+### 🚀 Configuração e Execução
+
+Siga os passos abaixo para configurar e executar o ambiente completo do projeto.
+
+#### 1. Pré-requisitos
+* [Docker](https://www.docker.com/products/docker-desktop/) instalado e em execução.
+* [Docker Compose](https://docs.docker.com/compose/install/) (geralmente já vem com o Docker Desktop).
+
+#### 2. Arquivo de Ambiente
+
+Este projeto utiliza variáveis de ambiente para configurar as conexões.
+
+Crie uma cópia do arquivo de exemplo .env.exemplo e renomeie-a para .env:
+
+```bash
+cp .env.exemplo .env
+```
+
+Abra o arquivo .env recém-criado e preencha as senhas e outras configurações conforme necessário.
 
 ### 🗂️ Estrutura do Projeto
 
@@ -60,83 +79,33 @@ tcc-nosql-comparativo/
 ```
 
 ---
-
-### 🚀 Como Executar o Projeto
-
-Siga os passos abaixo para configurar e executar o ambiente completo.
-
-#### 1. Pré-requisitos
-
-* **Docker** e **Docker Compose** instalados.
-* **Python 3.9+** instalado na sua máquina local.
-
-#### 2. Configuração do Ambiente
-
-**a. Clone o Repositório**
-```bash
-git clone [URL_DO_SEU_REPOSITORIO]
-cd tcc-nosql-comparativo
-```
-
-**b. Crie o Arquivo de Ambiente**
-Crie uma cópia do arquivo `.env.example` (se você criar um) ou crie um arquivo `.env` na raiz do projeto com as variáveis de ambiente para as conexões dos bancos. Exemplo:
-```env
-# MongoDB
-MONGO_INITDB_ROOT_HOST=mongodb
-MONGO_INITDB_ROOT_PORT=27017
-# ... (outras variáveis para os 4 bancos)
-```
-
-**c. Configure o Ambiente Virtual Python**
-É recomendado usar um ambiente virtual para instalar as dependências.
-```bash
-# Crie o ambiente (use .venv ou o nome que preferir)
-python -m venv .venv
-
-# Ative o ambiente
-# No Windows:
-# .\.venv\Scripts\activate
-# No macOS/Linux:
-# source .venv/bin/activate
-
-# Instale as dependências
-pip install -r requirements.txt
-```
-
 #### 3. Execução da Aplicação
+Com o Docker em execução e o arquivo .env criado, um único comando é necessário para iniciar toda a aplicação:
 
-**a. Inicie os Serviços com Docker Compose**
-Este comando vai construir a imagem da sua aplicação e iniciar todos os contêineres (API e os 4 bancos de dados).
-```bash
-docker-compose up --build -d
-```
-O `-d` executa os contêineres em modo "detached" (em segundo plano).
+COMPOSE_BAKE=true docker-compose up --build
 
-**b. Acesse a API**
-* A API FastAPI estará rodando em `http://localhost:8000`.
-* A documentação interativa (Swagger UI) estará disponível em `http://localhost:8000/docs`.
+Usar o Bake (COMPOSE_BAKE=true) permite que você passe a definição de compilação completa para todos os serviços e orquestre a execução da compilação da maneira mais eficiente.
+O comando docker-compose up irá construir a imagem da aplicação (se ainda não existir) e iniciar todos os contêineres definidos: a API, o Frontend e os 4 bancos de dados.
+Use a flag -d (docker-compose up --build -d) se desejar executar os contêineres em segundo plano (modo "detached").
 
-**c. Execute o Frontend Streamlit**
-Com o ambiente virtual ativado, rode o seguinte comando no terminal:
-```bash
-streamlit run src/streamlit_app/app.py
-```
-* A aplicação Streamlit estará disponível no seu navegador em `http://localhost:8501`.
+#### 4. Acessando os Serviços
+Após a inicialização, os serviços estarão disponíveis nos seguintes endereços:
 
-#### 4. Execução dos Testes de Desempenho
+Frontend (Streamlit): http://localhost:8501
+Backend (API FastAPI): http://localhost:8000
+Documentação da API (Swagger): http://localhost:8000/docs
+Mongo Express (Interface para MongoDB): http://localhost:8081
 
-Os scripts para os testes de performance estão na pasta `/testes`. Para executá-los, certifique-se de que os contêineres Docker estão no ar e execute os scripts pelo terminal (com o ambiente virtual ativado).
+🧪 Execução dos Testes de Desempenho
+Os scripts para os testes de performance estão na pasta /testes. Para executá-los, certifique-se de que os contêineres da aplicação estão no ar (docker-compose up) e, em um novo terminal, execute os scripts desejados.
 
-```bash
+Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
+
 # Exemplo para o teste de inserção
 python testes/teste_insercao.py
 
 # Exemplo para o teste de busca
 python testes/teste_busca_avancada.py
-```
-Os resultados serão salvos em arquivos `.json` dentro da mesma pasta.
-
----
 
 ### 👨‍💻 Autor - **Ozen** 
 
