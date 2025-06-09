@@ -82,7 +82,9 @@ tcc-nosql-comparativo/
 #### 3. Execução da Aplicação
 Com o Docker em execução e o arquivo .env criado, um único comando é necessário para iniciar toda a aplicação:
 
+```bash
 COMPOSE_BAKE=true docker-compose up --build
+```
 
 Usar o Bake (COMPOSE_BAKE=true) permite que você passe a definição de compilação completa para todos os serviços e orquestre a execução da compilação da maneira mais eficiente.
 O comando docker-compose up irá construir a imagem da aplicação (se ainda não existir) e iniciar todos os contêineres definidos: a API, o Frontend e os 4 bancos de dados.
@@ -101,10 +103,10 @@ Os scripts para os testes de performance estão na pasta /testes. Para executá-
 
 Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
 
-# Exemplo para o teste de inserção
+#### Exemplo para o teste de inserção
 python testes/teste_insercao.py
 
-# Exemplo para o teste de busca
+#### Exemplo para o teste de busca
 python testes/teste_busca_avancada.py
 
 ### 👨‍💻 Autor - **Ozen** 
