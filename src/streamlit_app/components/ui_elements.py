@@ -63,24 +63,6 @@ def atualizar_estado_banco_global():
     st.session_state[CHAVE_SESSAO_BANCO_SELECIONADO_GLOBAL] = "todos"
     print(f"WARN: Callback do seletor de banco não encontrou chave interna para o label: {label_selecionado_no_widget}. Usando 'todos'.")
 
-
-# Suas outras funções de UI elements (formulários, etc.) continuam aqui...
-# ... (formulario_busca_avancada, formulario_carregar_base, etc.) ...
-
-def seletor_de_banco(chave_selectbox: str = "banco_selecionado_global"):
-    """Cria um selectbox para o usuário escolher o banco ou 'Todos'."""
-    opcoes_banco = {k: v for k, v in BANCOS_SUPORTADOS.items()} # Usar uma cópia
-    banco_selecionado_label = st.sidebar.selectbox(
-        "Selecione o Banco de Dados para a Operação:",
-        options=list(opcoes_banco.values()), # Exibe os nomes amigáveis
-        key=f"{chave_selectbox}_label"
-    )
-    # Mapeia o label de volta para a chave interna (ex: "MongoDB" -> "mongo")
-    for key, value in opcoes_banco.items():
-        if value == banco_selecionado_label:
-            return key
-    return "todos" # Fallback
-
 def formulario_busca_avancada(chave_form: str = "form_busca_avancada"):
     """Renderiza o formulário de busca avançada e retorna os filtros."""
     filtros = {}
@@ -106,10 +88,6 @@ def formulario_busca_avancada(chave_form: str = "form_busca_avancada"):
             if filtros["tipo"] == "Qualquer": filtros["tipo"] = None # Para não enviar o filtro se for qualquer um
             return filtros
     return None
-
-# src/streamlit_app/components/ui_elements.py
-import streamlit as st
-# ... (outras importações e funções como seletor_de_banco, etc.)
 
 def formulario_carregar_base(chave_form: str = "form_carregar_base"):
     """Renderiza o formulário para especificar os caminhos dos arquivos de dados."""

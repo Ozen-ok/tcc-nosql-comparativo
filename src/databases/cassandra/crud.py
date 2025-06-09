@@ -344,7 +344,8 @@ def _aplicar_filtros_python_cassandra_com_regra_futuro(
                         match = False; break
         else:
             # Filtro desconhecido, pode logar ou ignorar
-            print(f"AVISO CASSANDRA: Filtro Python desconhecido '{campo_filtro}'")
+            #print(f"AVISO CASSANDRA: Filtro Python desconhecido '{campo_filtro}'")
+            pass
 
     return match
 

@@ -17,7 +17,7 @@ __pycache__/
 # --- Arquivos Sensíveis e de Ambiente ---
 # Arquivo com senhas, chaves de API e outras configurações locais.
 # NUNCA envie este arquivo para o repositório.
-.env
+#.env
 
 # --- Resultados de Testes e Logs ---
 # É uma boa prática não versionar arquivos de resultado gerados,

@@ -1,6 +1,6 @@
 # src/streamlit_app/paginas/inserir_base.py
 import streamlit as st
-from components.ui_elements import formulario_carregar_base, seletor_de_banco, seletor_de_banco_global_sidebar
+from components.ui_elements import formulario_carregar_base, seletor_de_banco_global_sidebar
 from components.display_utils import processar_e_exibir_resultados_carga_api
 from services.operation_handlers import carregar_base_de_dados_handler #
 from config.settings import BANCOS_SUPORTADOS

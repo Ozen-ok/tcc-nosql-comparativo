@@ -1,18 +1,7 @@
 services:
-  assets:
-    build:
-      context: .
-      dockerfile: Dockerfile.assets
-    container_name: assets
-    volumes:
-      - shared_data:/shared
-      - ./assets:/shared/assets  # Mapeando o diretório de pôsteres do container para o local
-      - ./data:/data  # Mapeando os novos arquivos TSV para o contêiner
-    networks:
-      - app_network
-
+  # --- BANCOS DE DADOS (Sua configuração original, mantida) ---
   mongodb:
-    image: mongo
+    image: mongo:latest
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -37,35 +26,40 @@ services:
       - ME_CONFIG_BASICAUTH=false
     networks:
       - app_network
+    depends_on:
+      - mongodb
 
   cassandra:
     image: cassandra
     container_name: cassandra
     ports:
       - "9042:9042"
-    environment:
-      - CASSANDRA_USER=cassandra
-      - CASSANDRA_PASSWORD=cassandra
+    # Adicionando um healthcheck para garantir que o cassandra esteja pronto
+    healthcheck:
+      test: ["CMD", "cqlsh", "-u", "cassandra", "-p", "cassandra", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
     volumes:
       - cassandra_data:/var/lib/cassandra
     networks:
       - app_network
 
   neo4j:
-    image: neo4j
+    image: neo4j:latest
     container_name: neo4j
-    environment:
-      - NEO4J_AUTH=neo4j/SecureNeo4j2025
     ports:
       - "7474:7474"
       - "7687:7687"
+    environment:
+      - NEO4J_AUTH=none # Simplificando para o ambiente de dev
     volumes:
       - neo4j_data:/data
     networks:
       - app_network
 
   redis:
-    image: redis
+    image: redis:latest
     container_name: redis
     ports:
       - "6379:6379"
@@ -74,11 +68,52 @@ services:
     networks:
       - app_network
 
+  # --- APLICAÇÃO (Substituindo o seu serviço 'assets' antigo) ---
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile # Usando nosso Dockerfile principal
+    container_name: tcc_api_server
+    env_file:
+      - .env  # <<<--- ADICIONE ESSA LINHA AQUI
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+    depends_on:
+      mongodb:
+        condition: service_started
+      cassandra:
+        condition: service_healthy # Espera o cassandra estar realmente pronto
+      neo4j:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile # Usando o mesmo Dockerfile
+    container_name: tcc_streamlit_app
+    command: streamlit run src/streamlit_app/app.py --server.port 8501 --server.address 0.0.0.0
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8501:8501"
+    networks:
+      - app_network
+    depends_on:
+      - api
+
 networks:
   app_network:
 
 volumes:
-  shared_data:
   mongodb_data:
   cassandra_data:
   neo4j_data:

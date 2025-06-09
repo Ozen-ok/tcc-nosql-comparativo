@@ -64,7 +64,6 @@ with st.expander("Ver Detalhes Técnicos e Estrutura do Projeto"):
     st.code("""
 tcc-nosql-comparativo/
 ├── .streamlit/
-├── .vscode/
 ├── assets/
 ├── data/
 │   ├── atores.tsv
@@ -79,11 +78,10 @@ tcc-nosql-comparativo/
 │   ├── streamlit_app/
 │   └── utils/
 ├── testes/
-├── venv_imdb/
 ├── .env
 ├── .gitignore
 ├── docker-compose.yml
-├── Dockerfile.assets
+├── Dockerfile
 ├── notas_do_projeto.md
 ├── README.md
 └── requirements.txt

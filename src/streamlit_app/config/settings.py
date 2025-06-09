@@ -1,5 +1,5 @@
 # src/streamlit_app/config/settings.py
-FASTAPI_BASE_URL = "http://localhost:8000/api/v1"  # Endpoint base da sua API FastAPI (vamos planejar que ela terá /api/v1)
+FASTAPI_BASE_URL = "http://api:8000/api/v1"  # Endpoint base da sua API FastAPI (vamos planejar que ela terá /api/v1)
 
 GENEROS_LISTA = [
     "Ação", "Aventura", "Animação", "Biografia", "Comédia", "Crime",
