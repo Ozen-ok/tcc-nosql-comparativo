@@ -86,8 +86,8 @@ Com o Docker em execução e o arquivo .env criado, um único comando é necess�
 COMPOSE_BAKE=true docker-compose up --build
 ```
 
-Usar o Bake (COMPOSE_BAKE=true) permite que você passe a definição de compilação completa para todos os serviços e orquestre a execução da compilação da maneira mais eficiente.
-O comando docker-compose up irá construir a imagem da aplicação (se ainda não existir) e iniciar todos os contêineres definidos: a API, o Frontend e os 4 bancos de dados.
+Usar o Bake (COMPOSE_BAKE=true) permite que você passe a definição de compilação completa para todos os serviços e orquestre a execução da compilação da maneira mais eficiente.\
+O comando docker-compose up irá construir a imagem da aplicação (se ainda não existir) e iniciar todos os contêineres definidos: a API, o Frontend e os 4 bancos de dados.\
 Use a flag -d (docker-compose up --build -d) se desejar executar os contêineres em segundo plano (modo "detached").
 
 #### 4. Acessando os Serviços
@@ -98,7 +98,7 @@ Backend (API FastAPI): http://localhost:8000
 Documentação da API (Swagger): http://localhost:8000/docs
 Mongo Express (Interface para MongoDB): http://localhost:8081
 
-🧪 Execução dos Testes de Desempenho
+🧪 Execução dos Testes de Desempenho\
 Os scripts para os testes de performance estão na pasta /testes. Para executá-los, certifique-se de que os contêineres da aplicação estão no ar (docker-compose up) e, em um novo terminal, execute os scripts desejados.
 
 Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
