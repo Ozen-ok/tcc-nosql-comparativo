@@ -1,68 +1,167 @@
-# 🎓 TCC: Análise Comparativa de Bancos de Dados NoSQL
+# Análise Comparativa de Bancos de Dados NoSQL
 
-## "Aplicabilidade e desempenho de banco de dados NoSQL em aplicações modernas: um estudo de caso em MongoDB, Cassandra, Neo4j e Redis."
+**Aplicabilidade e desempenho de banco de dados NoSQL em aplicações modernas: um estudo de caso em MongoDB, Cassandra, Neo4j e Redis.**
 
-Este repositório contém o código-fonte e os resultados do projeto de TCC que implementa e avalia o desempenho de quatro bancos de dados NoSQL populares em diferentes cenários de carga de trabalho. A aplicação consiste em uma API FastAPI que se comunica com os bancos e uma interface interativa com Streamlit para visualização e demonstração.
+Trabalho de Conclusão de Curso (TCC) desenvolvido para investigar a aplicabilidade e comparar o desempenho de quatro bancos de dados NoSQL em diferentes cenários de operações sobre dados.
 
----
+O projeto reúne uma aplicação funcional com API REST, interface interativa, integração com quatro bancos de dados e experimentos de desempenho utilizando uma base relacionada a filmes, atores e elenco.
 
-### 🎯 Objetivos do Projeto
+## Visão geral
 
-* **Comparar** o desempenho de MongoDB, Cassandra, Neo4j e Redis em operações de escrita, leitura complexa e agregações.
-* **Desenvolver** uma aplicação moderna e dockerizada utilizando Python, com uma API (FastAPI) e um dashboard interativo (Streamlit).
-* **Demonstrar** na prática a aplicabilidade e os "trade-offs" de cada banco de dados, mostrando que a escolha da tecnologia depende do problema a ser resolvido.
-* **Analisar** os resultados de performance para fornecer conclusões embasadas sobre a adequação de cada banco para diferentes cenários.
+A aplicação permite interagir com os bancos de dados, executar operações e consultas e visualizar resultados de experimentos comparativos.
 
----
+Entre os principais componentes estão:
 
-### 🛠️ Tecnologias Utilizadas
+- Implementações de acesso e operações para MongoDB, Cassandra, Neo4j e Redis.
+- API REST desenvolvida com FastAPI.
+- Interface web interativa desenvolvida com Streamlit.
+- Ambiente conteinerizado e orquestrado com Docker Compose.
+- Scripts e arquivos de resultados utilizados na análise experimental.
+- Dashboard para visualização comparativa das medições.
 
-* **Backend:** Python, FastAPI
-* **Frontend:** Streamlit
-* **Bancos de Dados:**
-    * 🍃 **MongoDB:** Banco de dados orientado a documentos.
-    * 🗄️ **Cassandra:** Banco de dados colunar e distribuído.
-    * 🕸️ **Neo4j:** Banco de dados de grafos.
-    * ⚡ **Redis:** Banco de dados em memória (chave-valor).
-* **Infraestrutura:** Docker, Docker Compose
+## Arquitetura
 
----
+![Diagrama da arquitetura da aplicação](assets/imagens/arquitetura.png)
 
-### 🚀 Configuração e Execução
+A interface Streamlit é utilizada para interação com a aplicação. As solicitações são encaminhadas à API FastAPI, que se comunica com os serviços dos bancos de dados executados no ambiente Docker.
 
-Siga os passos abaixo para configurar e executar o ambiente completo do projeto.
+## Bancos de dados analisados
 
-#### 1. Pré-requisitos
-* [Docker](https://www.docker.com/products/docker-desktop/) instalado e em execução.
-* [Docker Compose](https://docs.docker.com/compose/install/) (geralmente já vem com o Docker Desktop).
+| Banco de dados | Modelo |
+|---|---|
+| MongoDB | Orientado a documentos |
+| Apache Cassandra | Colunar distribuído |
+| Neo4j | Banco de dados de grafos |
+| Redis | Estruturas de dados em memória, chave-valor |
 
-#### 2. Arquivo de Ambiente
+## Tecnologias
 
-Este projeto utiliza variáveis de ambiente para configurar as conexões.
+- **Linguagem:** Python
+- **API:** FastAPI
+- **Interface:** Streamlit
+- **Bancos de dados:** MongoDB, Apache Cassandra, Neo4j e Redis
+- **Infraestrutura:** Docker e Docker Compose
+- **Bibliotecas de dados e integração:** Pandas e drivers específicos de cada banco
 
-Crie uma cópia do arquivo de exemplo .env.exemplo e renomeie-a para .env:
+## Funcionalidades
+
+A interface disponibiliza operações e consultas para explorar os dados armazenados nos bancos:
+
+- Inserção de dados.
+- Atualização e remoção de registros.
+- Busca avançada de filmes.
+- Listagem de filmes por ator.
+- Exibição de detalhes de filmes.
+- Contagem de registros.
+- Cálculo de médias por gênero.
+- Preparação das bases de dados para os experimentos.
+- Análise comparativa de desempenho.
+
+### Detalhes de um filme
+
+A aplicação apresenta informações como pôster, título, avaliação, gêneros, sinopse e elenco.
+
+![Tela de detalhes de um filme](assets/imagens/detalhes-filme.jpg)
+
+### Consulta de filmes por ator
+
+É possível selecionar um ator, definir critérios de ordenação e limitar a quantidade de resultados retornados.
+
+![Tela de listagem de filmes por ator](assets/imagens/filmes-por-ator.jpg)
+
+## Ambiente de execução
+
+Os serviços são executados em contêineres e orquestrados pelo Docker Compose.
+
+![Contêineres do projeto em execução](assets/imagens/containers-docker.png)
+
+O ambiente também inclui o Mongo Express para visualização e administração das coleções MongoDB.
+
+![Coleções do MongoDB no Mongo Express](assets/imagens/mongo-express.png)
+
+## Experimentos e resultados
+
+Os experimentos contemplam diferentes operações sobre a base de dados. Os resultados registrados pelo projeto são armazenados em arquivos JSON e utilizados pela interface de análise.
+
+A tabela abaixo apresenta as médias calculadas a partir dos resultados oficiais incluídos no repositório, considerando as execuções de 2 a 10 e desconsiderando a primeira execução, conforme o critério utilizado no dashboard.
+
+| Cenário | MongoDB | Cassandra | Neo4j | Redis |
+|---|---:|---:|---:|---:|
+| Inserção em lote | 0,1646 s | 1,8265 s | 0,2086 s | 0,4307 s |
+| Busca avançada | 0,0497 s | 0,0494 s | 0,0096 s | 0,1163 s |
+| Média por gênero | 0,0451 s | 0,0736 s | 0,0096 s | 0,2351 s |
+| Busca por ator | 0,0468 s | 0,0622 s | 0,0164 s | 0,0273 s |
+| Contagem por ano | 0,0436 s | 0,0692 s | 0,0105 s | 0,2235 s |
+
+*Fonte: arquivos JSON de resultados oficiais do projeto. Médias calculadas com as execuções de 2 a 10. Valores em segundos.*
+
+### Visualização: inserção em lote
+
+O gráfico abaixo apresenta o tempo médio registrado para a operação de inserção em lote nos quatro bancos de dados.
+
+![Comparação do tempo médio de inserção em lote](assets/imagens/insercao-em-lote.jpg)
+
+Nos resultados registrados para esse cenário, MongoDB apresentou a menor média, seguido por Neo4j, Redis e Cassandra.
+
+**Nota metodológica:** os valores representam os tempos medidos pela aplicação durante os experimentos realizados. Eles não devem ser interpretados como medições isoladas do processamento interno de cada SGBD nem como uma classificação universal de desempenho. Os resultados dependem da implementação das operações e das condições do ambiente experimental.
+
+## Como executar
+
+### Pré-requisitos
+
+- Docker instalado e em execução.
+- Docker Compose disponível.
+
+### 1. Clonar o repositório
+
+```bash
+git clone https://github.com/Ozen-ok/tcc-nosql-comparativo.git
+cd tcc-nosql-comparativo
+```
+
+### 2. Configurar as variáveis de ambiente
+
+Crie o arquivo `.env` a partir do exemplo:
 
 ```bash
 cp .env.exemplo .env
 ```
 
-Abra o arquivo .env recém-criado e preencha as senhas e outras configurações conforme necessário.
+Edite o `.env` e configure as credenciais necessárias conforme as variáveis documentadas no arquivo de exemplo.
 
-### 🗂️ Estrutura do Projeto
-
-O projeto utiliza o padrão `src-layout` para uma organização de código limpa e manutenível.
+### 3. Iniciar os serviços
 
 ```bash
+COMPOSE_BAKE=true docker-compose up --build
+```
+
+Para executar em segundo plano:
+
+```bash
+COMPOSE_BAKE=true docker-compose up --build -d
+```
+
+### 4. Acessar a aplicação
+
+| Serviço | Endereço local |
+|---|---|
+| Interface Streamlit | http://localhost:8501 |
+| API FastAPI | http://localhost:8000 |
+| Documentação Swagger | http://localhost:8000/docs |
+| Mongo Express | http://localhost:8081 |
+
+As portas dos bancos de dados também são publicadas pelo ambiente Docker Compose. O ambiente foi estruturado para execução local de desenvolvimento e experimentação; não exponha os serviços diretamente à internet sem configurar autenticação, rede e controles de segurança apropriados.
+
+## Estrutura do projeto
+
+O repositório está organizado em diretórios que separam a API, a lógica de acesso aos bancos, a interface, os dados, os testes e os recursos visuais.
+
+```text
 tcc-nosql-comparativo/
 ├── .streamlit/
+├── assets/
+│   └── imagens/
 ├── data/
-│   ├── atores.tsv
-│   ├── elenco.tsv
-│   └── filmes.tsv
-├── testes/
-│   ├── teste_insercao.py
-│   ├── teste_busca_avancada.py
-│   └── ...
 ├── src/
 │   ├── api/
 │   ├── core/
@@ -71,51 +170,18 @@ tcc-nosql-comparativo/
 │   ├── services/
 │   ├── streamlit_app/
 │   └── utils/
-├── .env
+├── testes/
+├── .env.exemplo
 ├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
 └── requirements.txt
 ```
 
----
-#### 3. Execução da Aplicação
-Com o Docker em execução e o arquivo .env criado, um único comando é necessário para iniciar toda a aplicação:
+## Autor
 
-```bash
-COMPOSE_BAKE=true docker-compose up --build
-```
+**Ozen**
 
-Usar o Bake (COMPOSE_BAKE=true) permite que você passe a definição de compilação completa para todos os serviços e orquestre a execução da compilação da maneira mais eficiente.\
-O comando docker-compose up irá construir a imagem da aplicação (se ainda não existir) e iniciar todos os contêineres definidos: a API, o Frontend e os 4 bancos de dados.\
-Use a flag -d (docker-compose up --build -d) se desejar executar os contêineres em segundo plano (modo "detached").
+Trabalho de Conclusão de Curso em Engenharia da Computação — Universidade Estadual do Maranhão (UEMA).
 
-#### 4. Acessando os Serviços
-Após a inicialização, os serviços estarão disponíveis nos seguintes endereços:
-
-Frontend (Streamlit): http://localhost:8501
-Backend (API FastAPI): http://localhost:8000
-Documentação da API (Swagger): http://localhost:8000/docs
-Mongo Express (Interface para MongoDB): http://localhost:8081
-
-🧪 Execução dos Testes de Desempenho
-
-Os scripts para os testes de performance estão na pasta /testes. Para executá-los, certifique-se de que os contêineres da aplicação estão no ar (docker-compose up) e, em um novo terminal, execute os scripts desejados.
-
-Observação: Os scripts de teste se conectarão à API na porta 8000 para realizar as operações.
-
-#### Exemplo para o teste de inserção
-
-```bash
-python testes/teste_insercao.py
-```
-
-#### Exemplo para o teste de busca
-
-```bash
-python testes/teste_busca_avancada.py
-```
-
-### 👨‍💻 Autor - **Ozen** 
-
-![alt text](https://raw.githubusercontent.com/Ozen-ok/tcc-nosql-comparativo/refs/heads/main/assets/plankton.png)
+[Repositório no GitHub](https://github.com/Ozen-ok/tcc-nosql-comparativo)
